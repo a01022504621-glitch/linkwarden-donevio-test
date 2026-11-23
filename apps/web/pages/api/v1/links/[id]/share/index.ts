@@ -48,6 +48,15 @@ export default async function share(req: NextApiRequest, res: NextApiResponse) {
         shareUrl: `${process.env.NEXTAUTH_URL}/public/collections/${collection.id}`,
       },
     });
+  } else if (req.method === "DELETE") {
+    // Stop sharing: remove the shared link
+    const link = await prisma.link.findUnique({ where: { id: linkId } });
+
+    if (!link) return res.status(404).json({ response: "Link not found." });
+
+    await prisma.link.delete({ where: { id: linkId } });
+
+    return res.status(200).json({ response: "Link deleted." });
   }
 
   return res.status(405).json({ response: "Method not allowed." });
